@@ -28,8 +28,3 @@ EXPOSE 1812/udp \
        1813/udp \
        18120 \
        18121
-
-ENTRYPOINT [ "/init" ]
-
-CMD []
-
