@@ -11,8 +11,7 @@ RUN apk update && apk upgrade && \
         mutt \
         msmtp \
         mariadb-client && \
-    rm -rf /var/cache/apk/* && \
-    mkdir -p /assets/cron-custom
+    rm -rf /var/cache/apk/*
 
 COPY rootfs /
 
@@ -22,10 +21,6 @@ RUN ln -snf /etc/raddb/mods-available/sql /etc/raddb/mods-enabled/ && \
     chgrp radius /etc/raddb/mods-available/sql && \
     chgrp radius /etc/raddb/sites-available/status
 
-VOLUME [ "/userpass/" ] \
-       [ "/scripts/" ]
+VOLUME ["/userpass/"] 
 
-EXPOSE 1812/udp \
-       1813/udp \
-       18120 \
-       18121
+EXPOSE 1812/udp 1813/udp

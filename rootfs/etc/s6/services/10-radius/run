@@ -15,7 +15,7 @@ if [ "$DEBUG_MODE" = "TRUE" ] || [ "$DEBUG_MODE" = "true" ]; then
 fi
 
 echo "[i] Waiting for Contrainer Inited"
-while [ ! -f /setup/state/99-container-init ]
+while [ ! -f /tmp/state/99-container-init ]
 do
     sleep 1
 done
@@ -32,5 +32,5 @@ mysqlcmd="mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -A -N"
 Check_DB
 
 echo "[i] Start Radius Server"
-su-exec /usr/sbin/radiusd -X -f
+exec /usr/sbin/radiusd -X -f
 
