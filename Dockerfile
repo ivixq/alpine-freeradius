@@ -1,16 +1,16 @@
 FROM ivixq/alpine-s6
 MAINTAINER ivixq
 
-RUN apk update && apk upgrade && \
-    apk add --update freeradius \
+RUN apk --no-cache upgrade && \
+    apk --no-cache add \
+        freeradius \
         freeradius-sqlite \
         freeradius-lib \
         freeradius-radclient \
         freeradius-mysql \
         pwgen \
-        mutt \
-        msmtp \
-        mariadb-client && \
+        mariadb-client \
+        && \
     rm -rf /var/cache/apk/*
 
 COPY rootfs /

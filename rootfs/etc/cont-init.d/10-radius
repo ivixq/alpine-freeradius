@@ -92,12 +92,7 @@ PSK=${PSK:-"123456"}
 
 PASS_FILE=${PASS_FILE:-""}
 
-YOURNAME=${YOURNAME:-""}
-SENDER_MAIL_ADDR=${SENDER_MAIL_ADDR:-""}
 RECIPIENT_MAIL_ADDR=${RECIPIENT_MAIL_ADDR:-""}
-SMTP_SERVER=${SMTP_SERVER:-""}
-SENDER_USERNAME=${SENDER_USERNAME:-""}
-SENDER_MAIL_PASS=${SENDER_MAIL_PASS:-""}
 CUSTOMER_NAME=${CUSTOMER_NAME:-""}
 
 INIT_FILE="`basename $0`-init"
@@ -106,14 +101,6 @@ if [ ! -f /tmp/state/$INIT_FILE ]; then
     mysqlcmd="mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -A -N"
     sed -i -e "s/allow_vulnerable_openssl = no/allow_vulnerable_openssl = yes/g" /etc/raddb/radiusd.conf
     Check_DB
-
-    sed -e "s/<SMTP_SERVER>/$SMTP_SERVER/g" \
-        -e "s/<SENDER_MAIL_ADDR>/$SENDER_MAIL_ADDR/g" \
-        -e "s/<SENDER_USERNAME>/$SENDER_USERNAME/g" \
-        -e "s/<SENDER_MAIL_PASS>/$SENDER_MAIL_PASS/g" -i /root/.msmtprc
-
-    sed -e "s|<YOURNAME>|$YOURNAME|g" \
-        -e "s/<SENDER_MAIL_ADDR>/$SENDER_MAIL_ADDR/g" -i /etc/Muttrc
 
     if ! $mysqlcmd $DB_NAME -e "select count(*) from radcheck;"; then
         echo "[i] inital DB"
