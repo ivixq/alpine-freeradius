@@ -1,7 +1,7 @@
 FROM ivixq/alpine-s6
 MAINTAINER ivixq
 
-RUN apk --no-cache upgrade && \
+RUN apk update && apk --no-cache upgrade && \
     apk --no-cache add \
         freeradius \
         freeradius-sqlite \
