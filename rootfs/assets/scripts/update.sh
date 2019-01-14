@@ -31,11 +31,11 @@ function Export_User_PW {
 
 function Send_Mail {
     # mail title
-    mail_subject="【"$CUSTOMER_NAME"】[$(date +%F)]"$PASS_FILE""    
+    mail_subject="【"$CUSTOMER"】[$(date +%F)]"$PASS_FILE""    
     # mail content
     mail_content=""$PASS_FILE" at $(date +%F_%H:%M)"
     # mail address
-    mail_address="$RECIPIENT_MAIL_ADDR"
+    mail_address="$RECIPIENT"
     # send mail
     echo $mail_content | mutt -s $mail_subject -b $mail_address -a /userpass/$PASS_FILE
     # clean the temp file for mutt
@@ -48,13 +48,12 @@ DB_PORT=${DB_PORT:-"3306"}
 DB_USER=${DB_USER:-"radius"}
 DB_PASS=${DB_PASS:-"radpass"}
 DB_NAME=${DB_NAME:-"radius"}
-RECIPIENT_MAIL_ADDR=${RECIPIENT_MAIL_ADDR:-""}
-PASS_FILE=${PASS_FILE:-""}
-CUSTOMER_NAME=${CUSTOMER_NAME:-"GSL"}
+RECIPIENT=${RECIPIENT:-""}
+PASS_FILE=${PASS_FILE:-"pass_file"}
+CUSTOMER=${CUSTOMER:-"customer"}
 
 mysqlcmd="mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -A -N"
 
 Update_User_PW
 Export_User_PW
 Send_Mail
-

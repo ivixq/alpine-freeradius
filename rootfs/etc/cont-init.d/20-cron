@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv bash
+
+if [ "$DEBUG_MODE" = "TRUE" ] || [ "$DEBUG_MODE" = "true" ];  then
+    set -x
+fi
+
+CRON_CMD=${CRON_CMD:-""}
+
+if [ ! -f /tmp/state/`basename $0`-1 ]; then
+    sed -e "s|<CRON_CMD>|$CRON_CMD|g" -i /assets/cron-custom/crontab
+    touch /tmp/state/`basename $0`-1
+fi
