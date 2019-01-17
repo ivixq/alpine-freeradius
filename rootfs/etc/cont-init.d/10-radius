@@ -70,7 +70,7 @@ function Send_Mail {
     # mail content
     mail_content=""$PASS_FILE" at $(date +%F_%H:%M)"
     # mail address
-    mail_address="$RECIPIENT_MAIL_ADDR"
+    mail_address="$RECIPIENT"
     # send mail
     echo $mail_content | mutt -s $mail_subject -b $mail_address -a /userpass/$PASS_FILE
     # clean the temp file for mutt
