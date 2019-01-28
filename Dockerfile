@@ -3,8 +3,8 @@ MAINTAINER ivixq
 
 ENV ZABBIX_HOSTNAME=freeradius
 
-RUN apk --no-cache update && \
-    apk --no-cache upgrade && \
+RUN apk --no-cache update ; \
+    apk --no-cache upgrade ; \
     apk --no-cache add \
         freeradius \
         freeradius-sqlite \
@@ -13,15 +13,15 @@ RUN apk --no-cache update && \
         freeradius-mysql \
         pwgen \
         mariadb-client \
-        && \
+        ; \
     rm -rf /var/cache/apk/*
 
 COPY rootfs /
 
-RUN ln -snf /etc/raddb/mods-available/sql /etc/raddb/mods-enabled/ && \
-    ln -snf /etc/raddb/sites-available/status /etc/raddb/sites-enabled/ && \
-    chgrp radius /usr/sbin/radiusd && chmod g+rwx /usr/sbin/radiusd && \
-    chgrp radius /etc/raddb/mods-available/sql && \
+RUN ln -snf /etc/raddb/mods-available/sql /etc/raddb/mods-enabled/ ; \
+    ln -snf /etc/raddb/sites-available/status /etc/raddb/sites-enabled/ ; \
+    chgrp radius /usr/sbin/radiusd && chmod g+rwx /usr/sbin/radiusd ; \
+    chgrp radius /etc/raddb/mods-available/sql ; \
     chgrp radius /etc/raddb/sites-available/status
 
 VOLUME ["/userpass/"] 
