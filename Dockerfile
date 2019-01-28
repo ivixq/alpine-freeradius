@@ -1,6 +1,8 @@
 FROM ivixq/alpine-s6
 MAINTAINER ivixq
 
+ENV ZABBIX_HOSTNAME=freeradius
+
 RUN apk --no-cache update && \
     apk --no-cache upgrade && \
     apk --no-cache add \
