@@ -1,26 +1,24 @@
 #!/usr/bin/with-contenv bash
 function Check_DB {
-    until $mysqlcmd $DB_NAME -e "use $DB_NAME;"; do
-        >&2 echo "[i] Mysql is unavailable - sleeping"
-         sleep 1
-         done
+  until $mysqlcmd $DB_NAME -e "use $DB_NAME;"; do
+    >&2 echo "[i] Mysql is unavailable - sleeping"
+     sleep 1
+     done
 
-        >&2 echo "[i] Mysql is up - executing command"
+    >&2 echo "[i] Mysql is up - executing command"
 }
 
 #------MAIN------#
-## Debug Mode
 if [ "$DEBUG_MODE" = "TRUE" ] || [ "$DEBUG_MODE" = "true" ]; then
-    set -x
+  set -x
 fi
 
 echo "[i] Waiting for Contrainer Inited"
 while [ ! -f /tmp/state/99-container-init ]
 do
-    sleep 1
+  sleep 1
 done
 
-## Default parameters
 DB_HOST=${DB_HOST:-"radius-db"}
 DB_PORT=${DB_PORT:-"3306"}
 DB_USER=${DB_USER:-"radius"}
@@ -29,8 +27,8 @@ DB_NAME=${DB_NAME:-"radius"}
 
 echo "[i] Waiting for DB up"
 mysqlcmd="mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -A -N"
+
 Check_DB
 
 echo "[i] Start Radius Server"
-exec /usr/sbin/radiusd -X -f
-
+exec /usr/sbin/radiusd -X -f >/dev/null 2>&1

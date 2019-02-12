@@ -1,80 +1,79 @@
 #!/usr/bin/with-contenv bash
-## Debug Mode
 if [ "$DEBUG_MODE" = "TRUE" ] || [ "$DEBUG_MODE" = "true" ];  then
-    set -x
+  set -x
 fi
 
 function Check_DB {
-    until $mysqlcmd $DB_NAME -e "use $DB_NAME;"; do
-  	>&2 echo "[i] Mysql is unavailable - sleeping"
- 	 sleep 1
-	 done
+  until $mysqlcmd $DB_NAME -e "use $DB_NAME;"; do
+    >&2 echo "[i] Mysql is unavailable - sleeping"
+    sleep 1
+  done
 
-	>&2 echo "[i] Mysql is up - executing command"
+  >&2 echo "[i] Mysql is up - executing command"
 }
 
 function Import_DB_Scheme {
-    echo "[i] Import scheme for $DB_NAME"
-    $mysqlcmd $DB_NAME -e "SOURCE /etc/raddb/mods-config/sql/main/mysql/schema.sql;"
-    $mysqlcmd $DB_NAME -e "insert into radgroupreply (groupname,attribute,op,value) values ('user','Auth-Type',':=','Local');"
-    $mysqlcmd $DB_NAME -e "insert into radgroupreply (groupname,attribute,op,value) values ('user','Service-Type',':=','Framed-User');"
-    $mysqlcmd $DB_NAME -e "insert into radgroupreply (groupname,attribute,op,value) values ('user','Framed-IP-Address',':=','255.255.255.255');"
-    $mysqlcmd $DB_NAME -e "insert into radgroupreply (groupname,attribute,op,value) values ('user','Framed-IP-Netmask',':=','255.255.255.0');"
+  echo "[i] Import scheme for $DB_NAME"
+  $mysqlcmd $DB_NAME -e "SOURCE /etc/raddb/mods-config/sql/main/mysql/schema.sql;"
+  $mysqlcmd $DB_NAME -e "insert into radgroupreply (groupname,attribute,op,value) values ('user','Auth-Type',':=','Local');"
+  $mysqlcmd $DB_NAME -e "insert into radgroupreply (groupname,attribute,op,value) values ('user','Service-Type',':=','Framed-User');"
+  $mysqlcmd $DB_NAME -e "insert into radgroupreply (groupname,attribute,op,value) values ('user','Framed-IP-Address',':=','255.255.255.255');"
+  $mysqlcmd $DB_NAME -e "insert into radgroupreply (groupname,attribute,op,value) values ('user','Framed-IP-Netmask',':=','255.255.255.0');"
 }
 
 function Insert_DB_Data {
-    tfile=`mktemp`
-    if [ ! -f "$tfile" ]; then
-        return 1
-    fi
+  tfile=`mktemp`
+  if [ ! -f "$tfile" ]; then
+      return 1
+  fi
 
-    > $tfile
-   for i in `seq 1 9`; do
-        echo -e "insert into radcheck (username,attribute,op,value) values ('guest0$i','Cleartext-Password',':=','`pwgen 6 1`');" >> $tfile
-    done
+  > $tfile
+  for i in `seq 1 9`; do
+    echo -e "insert into radcheck (username,attribute,op,value) values ('guest0$i','Cleartext-Password',':=','`pwgen 6 1`');" >> $tfile
+  done
 
-    for i in `seq 10 50`; do
-        echo -e "insert into radcheck (username,attribute,op,value) values ('guest$i','Cleartext-Password',':=','`pwgen 6 1`');" >> $tfile
-    done
+  for i in `seq 10 50`; do
+    echo -e "insert into radcheck (username,attribute,op,value) values ('guest$i','Cleartext-Password',':=','`pwgen 6 1`');" >> $tfile
+  done
 
-    echo "[i] insert raduser data" 	
-    $mysqlcmd $DB_NAME < $tfile
+  echo "[i] insert raduser data" 	
+  $mysqlcmd $DB_NAME < $tfile
        
-    for i in `seq 1 9`; do
-        echo -e "insert into radusergroup (username,groupname) values ('guest0$i','user');" > $tfile
-    done
+  for i in `seq 1 9`; do
+    echo -e "insert into radusergroup (username,groupname) values ('guest0$i','user');" > $tfile
+  done
         
-    for i in `seq 10 50`; do
-        echo -e "insert into radusergroup (username,groupname) values ('guest$i','user');" >> $tfile
-    done
+  for i in `seq 10 50`; do
+    echo -e "insert into radusergroup (username,groupname) values ('guest$i','user');" >> $tfile
+  done
     
-    echo "[i] insert radusergroup and radcheck data"
-    $mysqlcmd $DB_NAME < $tfile
+  echo "[i] insert radusergroup and radcheck data"
+  $mysqlcmd $DB_NAME < $tfile
 
-    rm -rf $tfile
+  rm -rf $tfile
 }
 
 function Export_User_PW {
-    rm -rf /userpass/$PASS_FILE
-    echo "[i] Create users password file"
-    userpasswd="$($mysqlcmd $DB_NAME -e "select username,value from radcheck;")"
-    dump_data=/userpass/$PASS_FILE
-    >$dump_data
-    echo -e "$userpasswd" > $dump_data
+  rm -rf /userpass/$PASS_FILE
+  echo "[i] Create users password file"
+  userpasswd="$($mysqlcmd $DB_NAME -e "select username,value from radcheck;")"
+  dump_data=/userpass/$PASS_FILE
+  >$dump_data
+  echo -e "$userpasswd" > $dump_data
 }
 
 function Send_Mail {
-    echo "[i] Sending password file to user"
-    # mail title
-    mail_subject="【"$CUSTOMER_NAME"】[$(date +%F)]"$PASS_FILE""
-    # mail content
-    mail_content=""$PASS_FILE" at $(date +%F_%H:%M)"
-    # mail address
-    mail_address="$RECIPIENT"
-    # send mail
-    echo $mail_content | mutt -s $mail_subject -b $mail_address -a /userpass/$PASS_FILE
-    # clean the temp file for mutt
-    cat /dev/null > ~/sent
+  echo "[i] Sending password file to user"
+  # mail title
+  mail_subject="【"$CUSTOMER_NAME"】[$(date +%F)]"$PASS_FILE""
+  # mail content
+  mail_content=""$PASS_FILE" at $(date +%F_%H:%M)"
+  # mail address
+  mail_address="$RECIPIENT"
+  # send mail
+  echo $mail_content | mutt -s $mail_subject -b $mail_address -a /userpass/$PASS_FILE
+  # clean the temp file for mutt
+  cat /dev/null > ~/sent
 }
 
 #------MAIN------#
@@ -95,33 +94,32 @@ PASS_FILE=${PASS_FILE:-"pass_file"}
 RECIPIENT=${RECIPIENT:-""}
 CUSTOMER=${CUSTOMER:-"customer"}
 
-INIT_FILE="`basename $0`-init"
+if [ ! -f /tmp/state/`basename $0`-init ]; then
+  mysqlcmd="mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -A -N"
+  sed -e "s/allow_vulnerable_openssl = no/allow_vulnerable_openssl = yes/g" -i /etc/raddb/radiusd.conf
 
-if [ ! -f /tmp/state/$INIT_FILE ]; then
-    mysqlcmd="mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -A -N"
-    sed -i -e "s/allow_vulnerable_openssl = no/allow_vulnerable_openssl = yes/g" /etc/raddb/radiusd.conf
-    Check_DB
+  Check_DB
 
-    if ! $mysqlcmd $DB_NAME -e "select count(*) from radcheck;"; then
-        echo "[i] inital DB"
-        Import_DB_Scheme
-        Insert_DB_Data
-        Export_User_PW
-        Send_Mail
-    fi
+  if ! $mysqlcmd $DB_NAME -e "select count(*) from radcheck;"; then
+    echo "[i] inital DB"
+    Import_DB_Scheme
+    Insert_DB_Data
+    Export_User_PW
+    Send_Mail
+  fi
 
-    sed -e "s/<SQL_DRIVER>/$SQL_DRIVER/g" \
-        -e "s/<DIALECT>/$DIALECT/g" \
-        -e "s/<DB_HOST>/$DB_HOST/g" \
-        -e "s/<DB_PORT>/$DB_PORT/g" \
-        -e "s/<DB_USER>/$DB_USER/g" \
-        -e "s/<DB_PASS>/$DB_PASS/g" \
-        -e "s/<DB_NAME>/$DB_NAME/g" -i /etc/raddb/mods-available/sql
+  sed -e "s/<SQL_DRIVER>/$SQL_DRIVER/g" \
+      -e "s/<DIALECT>/$DIALECT/g" \
+      -e "s/<DB_HOST>/$DB_HOST/g" \
+      -e "s/<DB_PORT>/$DB_PORT/g" \
+      -e "s/<DB_USER>/$DB_USER/g" \
+      -e "s/<DB_PASS>/$DB_PASS/g" \
+      -e "s/<DB_NAME>/$DB_NAME/g" -i /etc/raddb/mods-available/sql
     
-    sed -e "s/<CLIENT_NAME>/$CLIENT_NAME/g" \
-	-e "s|<CLIENT_NETWORK>|$CLIENT_NETWORK|g" \
-        -e "s/<PSK>/$PSK/g" -i /etc/raddb/clients.conf
+  sed -e "s/<CLIENT_NAME>/$CLIENT_NAME/g" \
+      -e "s|<CLIENT_NETWORK>|$CLIENT_NETWORK|g" \
+      -e "s/<PSK>/$PSK/g" -i /etc/raddb/clients.conf
 
-    mkdir -p /tmp/state
-    touch /tmp/state/$INIT_FILE
+  mkdir -p /tmp/state
+  touch /tmp/state/`basename $0`-init
 fi

@@ -1,5 +1,5 @@
 FROM ivixq/alpine-s6
-MAINTAINER ivixq
+LABEL maintainer=ivixq
 
 ENV ZABBIX_HOSTNAME=freeradius
 
