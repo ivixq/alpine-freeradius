@@ -65,7 +65,7 @@ function Export_User_PW {
 function Send_Mail {
   echo "[i] Sending password file to user"
   # mail title
-  mail_subject="【"$CUSTOMER_NAME"】[$(date +%F)]"$PASS_FILE""
+  mail_subject="【"$CUSTOMER"】[$(date +%F)]"$PASS_FILE""
   # mail content
   mail_content=""$PASS_FILE" at $(date +%F_%H:%M)"
   # mail address
