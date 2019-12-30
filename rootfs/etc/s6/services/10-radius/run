@@ -26,12 +26,10 @@ DB_USER=${DB_USER:-"radius"}
 DB_PASS=${DB_PASS:-"radpass"}
 DB_NAME=${DB_NAME:-"radius"}
 
-echo ''
 echo "[i] Waiting for DB up"
 mysqlcmd="mysql -h$DB_HOST -u$DB_USER -p$DB_PASS -A -N"
 
 Check_DB
 
-echo ''
 echo "[i] Start Radius Server"
 exec /usr/sbin/radiusd -X -f >/dev/null 2>&1
