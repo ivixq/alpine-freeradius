@@ -1,4 +1,4 @@
-FROM ivixq/alpine-s6:3.11
+FROM registry.cn-shenzhen.aliyuncs.com/ivixq/alpine-s6:edge
 LABEL maintainer=ivixq
 
 ENV ZABBIX_HOSTNAME=freeradius
@@ -15,7 +15,7 @@ RUN apk --no-cache upgrade ; \
         ; \
     rm -rf /var/cache/apk/*
 
-COPY rootfs /
+ADD /install /
 
 RUN ln -snf /etc/raddb/mods-available/sql /etc/raddb/mods-enabled/ ; \
     ln -snf /etc/raddb/sites-available/status /etc/raddb/sites-enabled/ ; \
